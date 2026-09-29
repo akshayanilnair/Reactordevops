@@ -1,17 +1,10 @@
-import fs from 'fs';
-import path from 'path';
+import { eq, sql } from 'drizzle-orm';
+import { db } from '../../db/index.js';
+import { hindsightBanks, hindsightMemories } from '../../db/schema.js';
 import { HindsightMemory, HindsightBank, MemoryGraph } from '../types/reactor.js';
 
-const DATA_DIR = path.resolve(process.cwd(), 'data');
-const STORE_FILE = path.join(DATA_DIR, 'hindsight_store.json');
-
-// Ensure data directory exists
-if (!fs.existsSync(DATA_DIR)) {
-  fs.mkdirSync(DATA_DIR, { recursive: true });
-}
-
 // Initial seed organizational memories reflecting rich engineering deployment history
-const INITIAL_MEMORIES: HindsightMemory[] = [
+export const INITIAL_MEMORIES: HindsightMemory[] = [
   {
     id: 'mem-deploy-1',
     bankId: 'reactor-production-memory',
@@ -170,7 +163,7 @@ Resolution: Validated circuit-breaker and DLQ routing. Zero customer impact duri
   }
 ];
 
-const INITIAL_BANKS: HindsightBank[] = [
+export const INITIAL_BANKS: HindsightBank[] = [
   {
     id: 'reactor-production-memory',
     name: 'Production Core Memory Bank',
@@ -194,48 +187,29 @@ const INITIAL_BANKS: HindsightBank[] = [
   }
 ];
 
-interface StoreSchema {
-  banks: HindsightBank[];
-  memories: HindsightMemory[];
-}
-
 export class HindsightMemoryEngine {
   private banks: Map<string, HindsightBank> = new Map();
   private memories: Map<string, HindsightMemory> = new Map();
 
-  constructor() {
-    this.loadStore();
+  private async hydrate() {
+    const [count] = await db.select({ value: sql<number>`count(*)::int` }).from(hindsightMemories);
+    if (count.value === 0) {
+      await db.transaction(async tx => {
+        await tx.insert(hindsightBanks).values(INITIAL_BANKS.map(data => ({ id: data.id, data }))).onConflictDoNothing();
+        await tx.insert(hindsightMemories).values(INITIAL_MEMORIES.map(data => ({ id: data.id, bankId: data.bankId, data }))).onConflictDoNothing();
+      });
+    }
+    this.banks.clear();
+    this.memories.clear();
+    (await db.select().from(hindsightBanks)).forEach(row => this.banks.set(row.id, row.data));
+    (await db.select().from(hindsightMemories)).forEach(row => this.memories.set(row.id, row.data));
   }
 
-  private loadStore() {
-    try {
-      if (fs.existsSync(STORE_FILE)) {
-        const raw = fs.readFileSync(STORE_FILE, 'utf-8');
-        const data: StoreSchema = JSON.parse(raw);
-        data.banks.forEach(b => this.banks.set(b.id, b));
-        data.memories.forEach(m => this.memories.set(m.id, m));
-        return;
-      }
-    } catch (e) {
-      console.warn('[Hindsight] Could not read existing store file, initializing seed memory:', e);
-    }
-
-    // Seed defaults
-    INITIAL_BANKS.forEach(b => this.banks.set(b.id, b));
-    INITIAL_MEMORIES.forEach(m => this.memories.set(m.id, m));
-    this.saveStore();
-  }
-
-  private saveStore() {
-    try {
-      const data: StoreSchema = {
-        banks: Array.from(this.banks.values()),
-        memories: Array.from(this.memories.values())
-      };
-      fs.writeFileSync(STORE_FILE, JSON.stringify(data, null, 2), 'utf-8');
-    } catch (e) {
-      console.error('[Hindsight] Error writing store file:', e);
-    }
+  private async persist() {
+    await db.transaction(async tx => {
+      for (const bank of this.banks.values()) await tx.insert(hindsightBanks).values({ id: bank.id, data: bank }).onConflictDoUpdate({ target: hindsightBanks.id, set: { data: bank, updatedAt: new Date() } });
+      for (const memory of this.memories.values()) await tx.insert(hindsightMemories).values({ id: memory.id, bankId: memory.bankId, data: memory }).onConflictDoUpdate({ target: hindsightMemories.id, set: { bankId: memory.bankId, data: memory, updatedAt: new Date() } });
+    });
   }
 
   // --- CORE HINDSIGHT PRIMITIVES ---
@@ -254,6 +228,7 @@ export class HindsightMemoryEngine {
     associations?: string[];
     importance?: number;
   }): Promise<HindsightMemory> {
+    await this.hydrate();
     const bankId = params.bankId || 'reactor-production-memory';
     const id = `mem-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`;
     
@@ -309,7 +284,7 @@ export class HindsightMemoryEngine {
     bank.lastRetentionAt = new Date().toISOString();
     this.banks.set(bankId, bank);
 
-    this.saveStore();
+    await this.persist();
 
     // Check if external Hindsight Cloud endpoint configured
     await this.tryForwardToExternalHindsight(memory);
@@ -333,6 +308,7 @@ export class HindsightMemoryEngine {
     totalRecalled: number;
     latencyMs: number;
   }> {
+    await this.hydrate();
     const startTime = Date.now();
     const bankId = params.bankId;
     const threshold = params.threshold ?? 0.25;
@@ -418,7 +394,7 @@ export class HindsightMemoryEngine {
     filtered.forEach(item => {
       item.memory.recallCount = (item.memory.recallCount || 0) + 1;
     });
-    this.saveStore();
+    await this.persist();
 
     const latencyMs = Date.now() - startTime;
 
@@ -430,11 +406,13 @@ export class HindsightMemoryEngine {
     };
   }
 
-  public listBanks(): HindsightBank[] {
+  public async listBanks(): Promise<HindsightBank[]> {
+    await this.hydrate();
     return Array.from(this.banks.values());
   }
 
-  public getAllMemories(): HindsightMemory[] {
+  public async getAllMemories(): Promise<HindsightMemory[]> {
+    await this.hydrate();
     return Array.from(this.memories.values()).sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
   }
 
@@ -442,7 +420,8 @@ export class HindsightMemoryEngine {
     return this.memories.get(id);
   }
 
-  public getMemoryGraph(): MemoryGraph {
+  public async getMemoryGraph(): Promise<MemoryGraph> {
+    await this.hydrate();
     const nodes: MemoryGraph['nodes'] = [];
     const edges: MemoryGraph['edges'] = [];
 
@@ -480,8 +459,8 @@ export class HindsightMemoryEngine {
   }
 
   private async tryForwardToExternalHindsight(memory: HindsightMemory) {
-    const hindsightUrl = process.env.HINDSIGHT_API_URL || 'https://api.hindsight.vectorize.io';
-    const hindsightKey = process.env.HINDSIGHT_API_KEY;
+    const hindsightUrl = Netlify.env.get('HINDSIGHT_API_URL') || 'https://api.hindsight.vectorize.io';
+    const hindsightKey = Netlify.env.get('HINDSIGHT_API_KEY');
 
     if (!hindsightKey) {
       // Local engine active (standalone / embedded Hindsight mode)

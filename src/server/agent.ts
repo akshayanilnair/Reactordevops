@@ -3,10 +3,11 @@ import { Deployment, RiskAssessment, RiskLevel, HistoricalComparison, BlastRadiu
 import { hindsightEngine } from './hindsight.js';
 import { storageEngine } from './storage.js';
 
-let geminiClient: GoogleGenAI | null = null;
-if (process.env.GEMINI_API_KEY) {
-  geminiClient = new GoogleGenAI({
-    apiKey: process.env.GEMINI_API_KEY,
+function createGeminiClient(): GoogleGenAI | null {
+  const apiKey = Netlify.env.get('GEMINI_API_KEY');
+  if (!apiKey) return null;
+  return new GoogleGenAI({
+    apiKey,
     httpOptions: {
       headers: {
         'User-Agent': 'aistudio-build'
@@ -20,6 +21,7 @@ export class ReactorAgent {
    * INGESTION -> NORMALIZER -> HINDSIGHT RECALL -> RISK / PATTERN ANALYSIS -> RECOMMENDATION
    */
   public async analyzeDeployment(deployment: Deployment): Promise<RiskAssessment> {
+    const geminiClient = createGeminiClient();
     // 1. Build rich semantic query representation from normalized changes
     const depQueryParts: string[] = [
       `Service: ${deployment.service}`,
@@ -74,9 +76,9 @@ export class ReactorAgent {
     const topMemory = recallResult.memories[0]?.memory;
     const topMemoryScore = recallResult.memories[0]?.score || 0;
 
-    if (geminiClient && process.env.GEMINI_API_KEY) {
+    if (geminiClient) {
       try {
-        assessment = await this.evaluateWithGemini(deployment, recallResult.memories, consultedMemories);
+        assessment = await this.evaluateWithGemini(deployment, recallResult.memories, consultedMemories, geminiClient);
       } catch (err) {
         console.warn('[ReactorAgent] Gemini evaluation encountered error, using deterministic DevOps engine:', err);
         assessment = this.evaluateWithDevOpsRules(deployment, recallResult.memories, consultedMemories);
@@ -92,7 +94,7 @@ export class ReactorAgent {
     } else {
       deployment.status = 'approved';
     }
-    storageEngine.upsertDeployment(deployment);
+    await storageEngine.upsertDeployment(deployment);
 
     return assessment;
   }
@@ -100,7 +102,8 @@ export class ReactorAgent {
   private async evaluateWithGemini(
     deployment: Deployment,
     recalledMemories: { memory: any; score: number; matchReasons: string[] }[],
-    consulted: any[]
+    consulted: any[],
+    geminiClient: GoogleGenAI
   ): Promise<RiskAssessment> {
     const memoryContext = recalledMemories.map(m => `
 Memory ID: ${m.memory.id}
@@ -158,7 +161,7 @@ Produce a detailed JSON evaluation with:
 
 Return ONLY valid JSON matching this schema.`;
 
-    const response = await geminiClient!.models.generateContent({
+    const response = await geminiClient.models.generateContent({
       model: 'gemini-3.8-flash',
       contents: prompt,
       config: {
@@ -511,7 +514,7 @@ Return ONLY valid JSON matching this schema.`;
     resolutionApplied?: string;
     errorLogs?: string;
   }): Promise<{ deployment: Deployment; memory: any }> {
-    const deployment = storageEngine.getDeploymentById(params.deploymentId);
+    const deployment = await storageEngine.getDeploymentById(params.deploymentId);
     if (!deployment) {
       throw new Error(`Deployment ${params.deploymentId} not found`);
     }
@@ -585,7 +588,7 @@ Verified by Engineer: ${params.engineerName}`;
       ? 'deployed_success' 
       : 'failed_in_production';
 
-    storageEngine.upsertDeployment(deployment);
+    await storageEngine.upsertDeployment(deployment);
 
     return {
       deployment,
@@ -597,13 +600,14 @@ Verified by Engineer: ${params.engineerName}`;
    * DevOps Knowledge Agent Q&A powered by Hindsight recall
    */
   public async askDevOpsAgent(question: string): Promise<{ answer: string; memoriesConsulted: any[] }> {
+    const geminiClient = createGeminiClient();
     const recallResult = await hindsightEngine.recall({
       query: question,
       threshold: 0.15,
       topK: 4
     });
 
-    if (geminiClient && process.env.GEMINI_API_KEY) {
+    if (geminiClient) {
       try {
         const memContext = recallResult.memories.map(m => `
 Memory [${m.memory.id}] ${m.memory.title} (Relevance: ${Math.round(m.score * 100)}%):

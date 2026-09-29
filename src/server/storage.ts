@@ -1,11 +1,9 @@
-import fs from 'fs';
-import path from 'path';
+import { desc, eq, sql } from 'drizzle-orm';
+import { db } from '../../db/index.js';
+import { deployments } from '../../db/schema.js';
 import { Deployment } from '../types/reactor.js';
 
-const DATA_DIR = path.resolve(process.cwd(), 'data');
-const DEPLOYMENTS_FILE = path.join(DATA_DIR, 'deployments_store.json');
-
-const SEED_DEPLOYMENTS: Deployment[] = [
+export const SEED_DEPLOYMENTS: Deployment[] = [
   {
     id: 'dep-1',
     number: 1,
@@ -254,65 +252,40 @@ const SEED_DEPLOYMENTS: Deployment[] = [
 ];
 
 export class StorageEngine {
-  private deployments: Map<string, Deployment> = new Map();
-
-  constructor() {
-    this.loadDeployments();
-  }
-
-  private loadDeployments() {
-    try {
-      if (fs.existsSync(DEPLOYMENTS_FILE)) {
-        const raw = fs.readFileSync(DEPLOYMENTS_FILE, 'utf-8');
-        const list: Deployment[] = JSON.parse(raw);
-        list.forEach(d => this.deployments.set(d.id, d));
-        return;
-      }
-    } catch (e) {
-      console.warn('[Storage] Could not load deployments file, using seed data:', e);
-    }
-
-    SEED_DEPLOYMENTS.forEach(d => this.deployments.set(d.id, d));
-    this.saveDeployments();
-  }
-
-  private saveDeployments() {
-    try {
-      const list = Array.from(this.deployments.values());
-      fs.writeFileSync(DEPLOYMENTS_FILE, JSON.stringify(list, null, 2), 'utf-8');
-    } catch (e) {
-      console.error('[Storage] Error saving deployments:', e);
+  private async ensureSeeded() {
+    const [count] = await db.select({ value: sql<number>`count(*)::int` }).from(deployments);
+    if (count.value === 0) {
+      await db.insert(deployments).values(SEED_DEPLOYMENTS.map(data => ({ id: data.id, number: data.number, data }))).onConflictDoNothing();
     }
   }
 
-  public getAllDeployments(): Deployment[] {
-    return Array.from(this.deployments.values()).sort((a, b) => b.number - a.number);
+  public async getAllDeployments(): Promise<Deployment[]> {
+    await this.ensureSeeded();
+    return (await db.select({ data: deployments.data }).from(deployments).orderBy(desc(deployments.number))).map(row => row.data);
   }
 
-  public getDeploymentById(id: string): Deployment | undefined {
-    return this.deployments.get(id);
+  public async getDeploymentById(id: string): Promise<Deployment | undefined> {
+    await this.ensureSeeded();
+    return (await db.select({ data: deployments.data }).from(deployments).where(eq(deployments.id, id)).limit(1))[0]?.data;
   }
 
-  public getDeploymentByNumber(num: number): Deployment | undefined {
-    return Array.from(this.deployments.values()).find(d => d.number === num);
-  }
-
-  public upsertDeployment(deployment: Deployment): Deployment {
-    this.deployments.set(deployment.id, deployment);
-    this.saveDeployments();
+  public async upsertDeployment(deployment: Deployment): Promise<Deployment> {
+    await db.insert(deployments).values({ id: deployment.id, number: deployment.number, data: deployment })
+      .onConflictDoUpdate({ target: deployments.id, set: { number: deployment.number, data: deployment, updatedAt: new Date() } });
     return deployment;
   }
 
-  public getNextDeploymentNumber(): number {
-    const list = Array.from(this.deployments.values());
-    if (list.length === 0) return 1;
-    return Math.max(...list.map(d => d.number)) + 1;
+  public async getNextDeploymentNumber(): Promise<number> {
+    await this.ensureSeeded();
+    const [result] = await db.select({ value: sql<number>`coalesce(max(${deployments.number}), 0)::int + 1` }).from(deployments);
+    return result.value;
   }
 
-  public resetToSeed(): void {
-    this.deployments.clear();
-    SEED_DEPLOYMENTS.forEach(d => this.deployments.set(d.id, d));
-    this.saveDeployments();
+  public async resetToSeed(): Promise<void> {
+    await db.transaction(async tx => {
+      await tx.delete(deployments);
+      await tx.insert(deployments).values(SEED_DEPLOYMENTS.map(data => ({ id: data.id, number: data.number, data })));
+    });
   }
 }
 

@@ -26,23 +26,23 @@ app.get('/api/health', (req, res) => {
     app: 'REACTOR',
     version: '1.0.0',
     hindsightConnected: true,
-    geminiConfigured: !!process.env.GEMINI_API_KEY
+    geminiConfigured: Netlify.env.has('GEMINI_API_KEY')
   });
 });
 
 // Deployments
-app.get('/api/deployments', (req, res) => {
+app.get('/api/deployments', async (req, res) => {
   try {
-    const list = storageEngine.getAllDeployments();
+    const list = await storageEngine.getAllDeployments();
     res.json(list);
   } catch (err: any) {
     res.status(500).json({ error: err.message });
   }
 });
 
-app.get('/api/deployments/:id', (req, res) => {
+app.get('/api/deployments/:id', async (req, res) => {
   try {
-    const dep = storageEngine.getDeploymentById(req.params.id);
+    const dep = await storageEngine.getDeploymentById(req.params.id);
     if (!dep) return res.status(404).json({ error: 'Deployment not found' });
     res.json(dep);
   } catch (err: any) {
@@ -56,10 +56,11 @@ app.post('/api/deployments/analyze', async (req, res) => {
     const body = req.body;
     let dep: Deployment;
 
-    if (body.id && storageEngine.getDeploymentById(body.id)) {
-      dep = storageEngine.getDeploymentById(body.id)!;
+    const existing = body.id ? await storageEngine.getDeploymentById(body.id) : undefined;
+    if (existing) {
+      dep = existing;
     } else {
-      const nextNum = storageEngine.getNextDeploymentNumber();
+      const nextNum = await storageEngine.getNextDeploymentNumber();
       dep = {
         id: `dep-${Date.now()}`,
         number: body.number || nextNum,
@@ -77,7 +78,7 @@ app.post('/api/deployments/analyze', async (req, res) => {
         infraChanges: body.infraChanges || [],
         databaseChanges: body.databaseChanges || []
       };
-      storageEngine.upsertDeployment(dep);
+      await storageEngine.upsertDeployment(dep);
     }
 
     const assessment = await reactorAgent.analyzeDeployment(dep);
@@ -161,7 +162,7 @@ app.post('/api/deployments/trigger-scenario', async (req, res) => {
     } else if (scenario === 'prisma_drift') {
       dep = {
         id: `dep-${Date.now()}`,
-        number: storageEngine.getNextDeploymentNumber(),
+        number: await storageEngine.getNextDeploymentNumber(),
         commitHash: '4b7a11c',
         commitMessage: 'db(users): add organization_uuid NOT NULL column to enterprise profiles table',
         author: {
@@ -192,7 +193,7 @@ app.post('/api/deployments/trigger-scenario', async (req, res) => {
     } else if (scenario === 'k8s_memory_reduction') {
       dep = {
         id: `dep-${Date.now()}`,
-        number: storageEngine.getNextDeploymentNumber(),
+        number: await storageEngine.getNextDeploymentNumber(),
         commitHash: '2e9c18a',
         commitMessage: 'infra(helm): scale down search-service memory request to 300Mi to reduce node group footprint',
         author: {
@@ -218,7 +219,7 @@ app.post('/api/deployments/trigger-scenario', async (req, res) => {
       // Default nominal feature deployment
       dep = {
         id: `dep-${Date.now()}`,
-        number: storageEngine.getNextDeploymentNumber(),
+        number: await storageEngine.getNextDeploymentNumber(),
         commitHash: 'f8120ab',
         commitMessage: 'feat(search): implement fuzzy product title matching with local cache',
         author: {
@@ -240,7 +241,7 @@ app.post('/api/deployments/trigger-scenario', async (req, res) => {
       };
     }
 
-    storageEngine.upsertDeployment(dep);
+    await storageEngine.upsertDeployment(dep);
     const assessment = await reactorAgent.analyzeDeployment(dep);
 
     res.json({ deployment: dep, assessment });
@@ -251,9 +252,9 @@ app.post('/api/deployments/trigger-scenario', async (req, res) => {
 });
 
 // Reset all storage to seed state
-app.post('/api/deployments/reset', (req, res) => {
+app.post('/api/deployments/reset', async (req, res) => {
   try {
-    storageEngine.resetToSeed();
+    await storageEngine.resetToSeed();
     res.json({ status: 'reset_success' });
   } catch (err: any) {
     res.status(500).json({ error: err.message });
@@ -261,27 +262,27 @@ app.post('/api/deployments/reset', (req, res) => {
 });
 
 // Hindsight Endpoints
-app.get('/api/hindsight/memories', (req, res) => {
+app.get('/api/hindsight/memories', async (req, res) => {
   try {
-    const list = hindsightEngine.getAllMemories();
+    const list = await hindsightEngine.getAllMemories();
     res.json(list);
   } catch (err: any) {
     res.status(500).json({ error: err.message });
   }
 });
 
-app.get('/api/hindsight/banks', (req, res) => {
+app.get('/api/hindsight/banks', async (req, res) => {
   try {
-    const banks = hindsightEngine.listBanks();
+    const banks = await hindsightEngine.listBanks();
     res.json(banks);
   } catch (err: any) {
     res.status(500).json({ error: err.message });
   }
 });
 
-app.get('/api/hindsight/graph', (req, res) => {
+app.get('/api/hindsight/graph', async (req, res) => {
   try {
-    const graph = hindsightEngine.getMemoryGraph();
+    const graph = await hindsightEngine.getMemoryGraph();
     res.json(graph);
   } catch (err: any) {
     res.status(500).json({ error: err.message });
@@ -365,4 +366,4 @@ async function startServer() {
   });
 }
 
-startServer();
+export { app, startServer };
