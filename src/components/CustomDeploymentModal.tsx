@@ -36,28 +36,28 @@ export const CustomDeploymentModal: React.FC<CustomDeploymentModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm">
-      <div className="w-full max-w-lg rounded-2xl border border-[rgba(13,12,11,0.15)] bg-white p-6 md:p-8 shadow-2xl space-y-5 text-xs">
-        <div className="flex items-center justify-between pb-3.5 border-b border-[rgba(13,12,11,0.08)]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-md">
+      <div className="studio-card w-full max-w-lg bg-[#0a0f1d] border border-white/20 p-6 md:p-8 shadow-2xl space-y-5 text-xs">
+        <div className="flex items-center justify-between pb-3.5 border-b border-white/10">
           <div>
-            <h3 className="text-base font-medium text-[#0d0c0b] tracking-tight">
+            <h3 className="text-base font-medium text-white tracking-tight">
               Test a Custom Code Change (PR)
             </h3>
-            <p className="text-[11px] text-[rgba(13,12,11,0.5)] mt-0.5">
+            <p className="text-[11px] text-white/50 mt-0.5">
               Simulate submitting code to see how Hindsight evaluates risk and catches past mistakes.
             </p>
           </div>
           <button
             onClick={onClose}
-            className="text-[rgba(13,12,11,0.4)] hover:text-[#0d0c0b] cursor-pointer p-1"
+            className="text-white/50 hover:text-white cursor-pointer p-1"
           >
             <X className="h-5 w-5" />
           </button>
         </div>
 
         {/* 1-Click Presets */}
-        <div className="space-y-1.5 p-3 rounded-xl bg-[#fafaf8] border border-[rgba(13,12,11,0.08)]">
-          <span className="text-[10px] font-mono uppercase tracking-wider text-[rgba(13,12,11,0.45)]">
+        <div className="space-y-1.5 p-3 rounded-xl bg-white/[0.04] border border-white/10">
+          <span className="text-[10px] font-mono uppercase tracking-wider text-white/50">
             Quick 1-Click Test Presets:
           </span>
           <div className="flex flex-wrap gap-1.5">
@@ -72,7 +72,7 @@ export const CustomDeploymentModal: React.FC<CustomDeploymentModalProps> = ({
                 setHasDbMigration(false);
                 setHasInfraChange(false);
               }}
-              className="text-[11px] px-2.5 py-1 rounded-full bg-white hover:bg-[#f0eee9] text-[#0d0c0b] border border-[rgba(13,12,11,0.12)] transition-colors cursor-pointer"
+              className="text-[11px] px-2.5 py-1 rounded-full bg-white/10 hover:bg-white/20 text-white border border-white/15 transition-colors cursor-pointer"
             >
               Repeat Outage (pg driver)
             </button>
@@ -88,7 +88,7 @@ export const CustomDeploymentModal: React.FC<CustomDeploymentModalProps> = ({
                 setInfraComponent('kubernetes');
                 setInfraDesc('Cut pod memory limit to 384Mi');
               }}
-              className="text-[11px] px-2.5 py-1 rounded-full bg-white hover:bg-[#f0eee9] text-[#0d0c0b] border border-[rgba(13,12,11,0.12)] transition-colors cursor-pointer"
+              className="text-[11px] px-2.5 py-1 rounded-full bg-white/10 hover:bg-white/20 text-white border border-white/15 transition-colors cursor-pointer"
             >
               Cut Server RAM by 50%
             </button>
@@ -104,7 +104,7 @@ export const CustomDeploymentModal: React.FC<CustomDeploymentModalProps> = ({
                 setMigrationDetails('ALTER TABLE users ADD COLUMN phone_number VARCHAR NOT NULL');
                 setHasInfraChange(false);
               }}
-              className="text-[11px] px-2.5 py-1 rounded-full bg-white hover:bg-[#f0eee9] text-[#0d0c0b] border border-[rgba(13,12,11,0.12)] transition-colors cursor-pointer"
+              className="text-[11px] px-2.5 py-1 rounded-full bg-white/10 hover:bg-white/20 text-white border border-white/15 transition-colors cursor-pointer"
             >
               Lock Database Table
             </button>
@@ -156,91 +156,91 @@ export const CustomDeploymentModal: React.FC<CustomDeploymentModalProps> = ({
         >
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-[rgba(13,12,11,0.6)] font-mono text-[11px] mb-1">Target Service</label>
+              <label className="block text-white/60 font-mono text-[11px] mb-1">Target Service</label>
               <select
                 value={service}
                 onChange={(e) => setService(e.target.value)}
-                className="w-full rounded-xl bg-[#fafaf8] border border-[rgba(13,12,11,0.14)] px-3 py-2 text-[#0d0c0b] text-xs focus:outline-none focus:border-[#0d0c0b]"
+                className="w-full rounded-xl bg-white/[0.05] border border-white/15 px-3 py-2 text-white text-xs focus:outline-none focus:border-white/40"
               >
-                <option value="checkout-api">checkout-api (Core payments)</option>
-                <option value="user-service">user-service (Profiles)</option>
-                <option value="search-service">search-service (Catalog)</option>
-                <option value="order-router">order-router (Fulfillment)</option>
+                <option value="checkout-api" className="bg-[#0a0f1d]">checkout-api (Core payments)</option>
+                <option value="user-service" className="bg-[#0a0f1d]">user-service (Profiles)</option>
+                <option value="search-service" className="bg-[#0a0f1d]">search-service (Catalog)</option>
+                <option value="order-router" className="bg-[#0a0f1d]">order-router (Fulfillment)</option>
               </select>
             </div>
 
             <div>
-              <label className="block text-[rgba(13,12,11,0.6)] font-mono text-[11px] mb-1">Target Environment</label>
+              <label className="block text-white/60 font-mono text-[11px] mb-1">Target Environment</label>
               <select
                 value={environment}
                 onChange={(e) => setEnvironment(e.target.value as any)}
-                className="w-full rounded-xl bg-[#fafaf8] border border-[rgba(13,12,11,0.14)] px-3 py-2 text-[#0d0c0b] text-xs focus:outline-none focus:border-[#0d0c0b]"
+                className="w-full rounded-xl bg-white/[0.05] border border-white/15 px-3 py-2 text-white text-xs focus:outline-none focus:border-white/40"
               >
-                <option value="production">production</option>
-                <option value="staging">staging</option>
-                <option value="canary">canary</option>
+                <option value="production" className="bg-[#0a0f1d]">production</option>
+                <option value="staging" className="bg-[#0a0f1d]">staging</option>
+                <option value="canary" className="bg-[#0a0f1d]">canary</option>
               </select>
             </div>
           </div>
 
           <div>
-            <label className="block text-[rgba(13,12,11,0.6)] font-mono text-[11px] mb-1">Git Commit Message</label>
+            <label className="block text-white/60 font-mono text-[11px] mb-1">Git Commit Message</label>
             <input
               type="text"
               required
               value={commitMessage}
               onChange={(e) => setCommitMessage(e.target.value)}
-              className="w-full rounded-xl bg-[#fafaf8] border border-[rgba(13,12,11,0.14)] px-3 py-2 text-[#0d0c0b] text-xs focus:outline-none focus:border-[#0d0c0b]"
+              className="w-full rounded-xl bg-white/[0.05] border border-white/15 px-3 py-2 text-white text-xs focus:outline-none focus:border-white/40"
             />
           </div>
 
           <div>
-            <label className="block text-[rgba(13,12,11,0.6)] font-mono text-[11px] mb-1">Author Name</label>
+            <label className="block text-white/60 font-mono text-[11px] mb-1">Author Name</label>
             <input
               type="text"
               required
               value={authorName}
               onChange={(e) => setAuthorName(e.target.value)}
-              className="w-full rounded-xl bg-[#fafaf8] border border-[rgba(13,12,11,0.14)] px-3 py-2 text-[#0d0c0b] text-xs focus:outline-none focus:border-[#0d0c0b]"
+              className="w-full rounded-xl bg-white/[0.05] border border-white/15 px-3 py-2 text-white text-xs focus:outline-none focus:border-white/40"
             />
           </div>
 
           {/* Dependency Delta */}
-          <div className="p-3.5 rounded-xl bg-[#fafaf8] border border-[rgba(13,12,11,0.08)] space-y-2">
-            <span className="text-[11px] font-mono text-[#0d0c0b] font-medium block">Dependency Change</span>
+          <div className="p-3.5 rounded-xl bg-white/[0.04] border border-white/10 space-y-2">
+            <span className="text-[11px] font-mono text-white font-medium block">Dependency Change</span>
             <div className="grid grid-cols-3 gap-2">
               <input
                 type="text"
                 placeholder="Package (e.g. pg)"
                 value={depName}
                 onChange={(e) => setDepName(e.target.value)}
-                className="rounded-lg bg-white border border-[rgba(13,12,11,0.12)] px-2.5 py-1.5 text-xs text-[#0d0c0b] font-mono focus:outline-none"
+                className="rounded-lg bg-white/[0.05] border border-white/15 px-2.5 py-1.5 text-xs text-white font-mono focus:outline-none focus:border-white/40"
               />
               <input
                 type="text"
                 placeholder="From (8.7.3)"
                 value={fromVer}
                 onChange={(e) => setFromVer(e.target.value)}
-                className="rounded-lg bg-white border border-[rgba(13,12,11,0.12)] px-2.5 py-1.5 text-xs text-[#0d0c0b] font-mono focus:outline-none"
+                className="rounded-lg bg-white/[0.05] border border-white/15 px-2.5 py-1.5 text-xs text-white font-mono focus:outline-none focus:border-white/40"
               />
               <input
                 type="text"
                 placeholder="To (8.11.3)"
                 value={toVer}
                 onChange={(e) => setToVer(e.target.value)}
-                className="rounded-lg bg-white border border-[rgba(13,12,11,0.12)] px-2.5 py-1.5 text-xs text-[#0d0c0b] font-mono focus:outline-none"
+                className="rounded-lg bg-white/[0.05] border border-white/15 px-2.5 py-1.5 text-xs text-white font-mono focus:outline-none focus:border-white/40"
               />
             </div>
           </div>
 
           {/* Optional DB Migration */}
-          <div className="p-3.5 rounded-xl bg-[#fafaf8] border border-[rgba(13,12,11,0.08)] space-y-2">
-            <label className="flex items-center gap-2 cursor-pointer text-[#0d0c0b] font-medium text-xs">
+          <div className="p-3.5 rounded-xl bg-white/[0.04] border border-white/10 space-y-2">
+            <label className="flex items-center gap-2 cursor-pointer text-white font-medium text-xs">
               <input
                 type="checkbox"
                 checked={hasDbMigration}
                 onChange={(e) => setHasDbMigration(e.target.checked)}
-                className="accent-[#0a0908]"
+                className="accent-white"
               />
               Include Database Schema Migration
             </label>
@@ -251,27 +251,27 @@ export const CustomDeploymentModal: React.FC<CustomDeploymentModalProps> = ({
                   placeholder="Migration file name"
                   value={migrationName}
                   onChange={(e) => setMigrationName(e.target.value)}
-                  className="w-full rounded-lg bg-white border border-[rgba(13,12,11,0.12)] px-2.5 py-1.5 text-xs text-[#0d0c0b] font-mono"
+                  className="w-full rounded-lg bg-white/[0.05] border border-white/15 px-2.5 py-1.5 text-xs text-white font-mono focus:outline-none focus:border-white/40"
                 />
                 <input
                   type="text"
                   placeholder="SQL statement / details"
                   value={migrationDetails}
                   onChange={(e) => setMigrationDetails(e.target.value)}
-                  className="w-full rounded-lg bg-white border border-[rgba(13,12,11,0.12)] px-2.5 py-1.5 text-xs text-[#0d0c0b]"
+                  className="w-full rounded-lg bg-white/[0.05] border border-white/15 px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-white/40"
                 />
               </div>
             )}
           </div>
 
           {/* Optional Infra Change */}
-          <div className="p-3.5 rounded-xl bg-[#fafaf8] border border-[rgba(13,12,11,0.08)] space-y-2">
-            <label className="flex items-center gap-2 cursor-pointer text-[#0d0c0b] font-medium text-xs">
+          <div className="p-3.5 rounded-xl bg-white/[0.04] border border-white/10 space-y-2">
+            <label className="flex items-center gap-2 cursor-pointer text-white font-medium text-xs">
               <input
                 type="checkbox"
                 checked={hasInfraChange}
                 onChange={(e) => setHasInfraChange(e.target.checked)}
-                className="accent-[#0a0908]"
+                className="accent-white"
               />
               Include Infrastructure / Helm Change
             </label>
@@ -282,20 +282,20 @@ export const CustomDeploymentModal: React.FC<CustomDeploymentModalProps> = ({
                   placeholder="Component (e.g. k8s)"
                   value={infraComponent}
                   onChange={(e) => setInfraComponent(e.target.value)}
-                  className="rounded-lg bg-white border border-[rgba(13,12,11,0.12)] px-2.5 py-1.5 text-xs text-[#0d0c0b]"
+                  className="rounded-lg bg-white/[0.05] border border-white/15 px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-white/40"
                 />
                 <input
                   type="text"
                   placeholder="Change description"
                   value={infraDesc}
                   onChange={(e) => setInfraDesc(e.target.value)}
-                  className="rounded-lg bg-white border border-[rgba(13,12,11,0.12)] px-2.5 py-1.5 text-xs text-[#0d0c0b]"
+                  className="rounded-lg bg-white/[0.05] border border-white/15 px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-white/40"
                 />
               </div>
             )}
           </div>
 
-          <div className="flex items-center justify-end gap-3 pt-3 border-t border-[rgba(13,12,11,0.08)]">
+          <div className="flex items-center justify-end gap-3 pt-3 border-t border-white/10">
             <button
               type="button"
               onClick={onClose}

@@ -6,6 +6,7 @@ import { HindsightExplorer } from './components/HindsightExplorer.js';
 import { DeploymentsTable } from './components/DeploymentsTable.js';
 import { DevOpsAgentChat } from './components/DevOpsAgentChat.js';
 import { CustomDeploymentModal } from './components/CustomDeploymentModal.js';
+import { PlainEnglishGlossaryModal } from './components/PlainEnglishGlossaryModal.js';
 import { Deployment, HindsightMemory, HindsightBank, MemoryGraph } from './types/reactor.js';
 import { ShieldCheck } from 'lucide-react';
 import bgImage from './assets/images/bg.webp';
@@ -24,6 +25,7 @@ export default function App() {
   const [isSubmittingOutcome, setIsSubmittingOutcome] = useState(false);
   const [isLoadingRecall, setIsLoadingRecall] = useState(false);
   const [isCustomModalOpen, setIsCustomModalOpen] = useState(false);
+  const [isGlossaryOpen, setIsGlossaryOpen] = useState(false);
   const [notification, setNotification] = useState<string | null>(null);
 
   const showNotification = (msg: string) => {
@@ -204,7 +206,7 @@ export default function App() {
   };
 
   return (
-    <div className="relative min-h-screen text-[#0d0c0b] flex flex-col font-sans selection:bg-[#0a0908] selection:text-white antialiased">
+    <div className="relative min-h-screen text-white flex flex-col font-sans selection:bg-white selection:text-[#0a0908] antialiased">
       {/* 1. Fixed Atmospheric Flowing Background Video & Animated Streams */}
       <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none select-none bg-[#02060f]">
         {/* Looping Ambient Video */}
@@ -263,6 +265,7 @@ export default function App() {
         activeTab={activeTab}
         setActiveTab={setActiveTab}
         onOpenCustomModal={() => setIsCustomModalOpen(true)}
+        onOpenGlossary={() => setIsGlossaryOpen(true)}
         onRunCoreStory={handleRunCoreStory}
         isAnalyzing={isAnalyzing}
         hindsightStats={{
@@ -291,6 +294,7 @@ export default function App() {
               onRunScenario={handleRunScenario}
               onReset={handleReset}
               onOpenCustomModal={() => setIsCustomModalOpen(true)}
+              onOpenGlossary={() => setIsGlossaryOpen(true)}
               isAnalyzing={isAnalyzing}
               viewMode={viewMode}
             />
@@ -301,13 +305,14 @@ export default function App() {
                 onRecordOutcome={handleRecordOutcome}
                 isSubmittingOutcome={isSubmittingOutcome}
                 onViewHistoricalDeployment={handleViewHistoricalDeployment}
+                onOpenGlossary={() => setIsGlossaryOpen(true)}
                 viewMode={viewMode}
               />
             ) : (
               <div className="studio-card p-12 text-center space-y-4">
-                <ShieldCheck className="h-10 w-10 text-[rgba(13,12,11,0.4)] mx-auto" />
-                <h3 className="text-base font-medium text-[#0d0c0b]">No Deployment Selected</h3>
-                <p className="text-xs text-[rgba(13,12,11,0.6)] max-w-sm mx-auto">
+                <ShieldCheck className="h-10 w-10 text-white/40 mx-auto" />
+                <h3 className="text-base font-medium text-white">No Deployment Selected</h3>
+                <p className="text-xs text-white/60 max-w-sm mx-auto">
                   Select a simulation above or trigger Deployment #27 to inspect pre-flight risk.
                 </p>
                 <button
@@ -325,13 +330,13 @@ export default function App() {
         {activeTab === 'memory' && (
           <div className="space-y-8">
             <div className="studio-card p-6 md:p-8 space-y-2">
-              <div className="text-xs font-mono text-[rgba(13,12,11,0.5)] uppercase tracking-wider">
+              <div className="text-xs font-mono text-white/50 uppercase tracking-wider">
                 Team Shared Brain
               </div>
-              <h1 className="text-2xl md:text-4xl font-normal tracking-tight text-[#0d0c0b]">
+              <h1 className="text-2xl md:text-4xl font-normal tracking-tight text-white">
                 {viewMode === 'friendly' ? 'Incident Memory Vault' : 'Hindsight Memory Banks'}
               </h1>
-              <p className="text-sm text-[rgba(13,12,11,0.65)] max-w-2xl leading-relaxed">
+              <p className="text-sm text-white/70 max-w-2xl leading-relaxed">
                 {viewMode === 'friendly'
                   ? 'Browse the library of past outages, post-mortems, and verified fixes that protect your application before every release.'
                   : 'Query the long-term semantic memory layer to view recalled incident graphs, dependency histories, and verified remediation patterns.'}
@@ -354,20 +359,20 @@ export default function App() {
           <div className="space-y-8">
             <div className="studio-card p-6 md:p-8 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
               <div className="space-y-2">
-                <div className="text-xs font-mono text-[rgba(13,12,11,0.5)] uppercase tracking-wider">
+                <div className="text-xs font-mono text-white/50 uppercase tracking-wider">
                   Audit History
                 </div>
-                <h1 className="text-2xl md:text-4xl font-normal tracking-tight text-[#0d0c0b]">
+                <h1 className="text-2xl md:text-4xl font-normal tracking-tight text-white">
                   {viewMode === 'friendly' ? 'Release & Outage History' : 'Deployment Ledger'}
                 </h1>
-                <p className="text-sm text-[rgba(13,12,11,0.65)] max-w-2xl leading-relaxed">
+                <p className="text-sm text-white/70 max-w-2xl leading-relaxed">
                   {viewMode === 'friendly'
                     ? 'A timeline of past code releases, incidents caught by the safety gate, and lessons retained for the team.'
                     : 'Historical ledger of deployments, downstream blast radiuses, and post-incident retentions.'}
                 </p>
               </div>
 
-              <div className="text-xs font-mono text-[rgba(13,12,11,0.6)] font-medium">
+              <div className="text-xs font-mono text-white/60 font-medium">
                 {deployments.length} deployments indexed
               </div>
             </div>
@@ -384,13 +389,13 @@ export default function App() {
         {activeTab === 'agent' && (
           <div className="space-y-8">
             <div className="studio-card p-6 md:p-8 space-y-2">
-              <div className="text-xs font-mono text-[rgba(13,12,11,0.5)] uppercase tracking-wider">
+              <div className="text-xs font-mono text-white/50 uppercase tracking-wider">
                 Engineering Assistant
               </div>
-              <h1 className="text-2xl md:text-4xl font-normal tracking-tight text-[#0d0c0b]">
+              <h1 className="text-2xl md:text-4xl font-normal tracking-tight text-white">
                 {viewMode === 'friendly' ? 'DevOps Knowledge Assistant' : 'DevOps Knowledge Agent'}
               </h1>
-              <p className="text-sm text-[rgba(13,12,11,0.65)] max-w-2xl leading-relaxed">
+              <p className="text-sm text-white/70 max-w-2xl leading-relaxed">
                 {viewMode === 'friendly'
                   ? 'Ask questions in plain English about why a change is risky, what caused a past outage, or request step-by-step fix commands.'
                   : 'Query historical outages, dependency incompatibilities, and preventative remediations via semantic recall.'}
@@ -410,11 +415,17 @@ export default function App() {
         isAnalyzing={isAnalyzing}
       />
 
+      {/* Plain English Jargon Dictionary Modal */}
+      <PlainEnglishGlossaryModal
+        isOpen={isGlossaryOpen}
+        onClose={() => setIsGlossaryOpen(false)}
+      />
+
       {/* Studio Footer Floating Over Background */}
-      <footer className="relative z-10 w-full border-t border-[rgba(255,255,255,0.15)] bg-white/80 backdrop-blur-xl py-8 px-6 text-xs text-[rgba(13,12,11,0.6)] font-sans">
+      <footer className="relative z-10 w-full border-t border-white/10 bg-[#02060f]/80 backdrop-blur-xl py-8 px-6 text-xs text-white/60 font-sans">
         <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left">
           <div className="flex items-center gap-2 font-mono">
-            <span className="font-semibold text-[#0d0c0b]">REACTOR</span>
+            <span className="font-semibold text-white">REACTOR</span>
             <span>&middot;</span>
             <span>112 Deployment Lane</span>
             <span>&middot;</span>

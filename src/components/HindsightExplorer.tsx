@@ -80,18 +80,18 @@ export const HindsightExplorer: React.FC<HindsightExplorerProps> = ({
   return (
     <div className="space-y-8">
       {/* Friendly Explainer Banner */}
-      <div className="studio-card p-6 bg-gradient-to-r from-amber-500/10 via-amber-400/5 to-transparent border border-amber-500/20 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="studio-card p-6 bg-gradient-to-r from-amber-500/15 via-amber-400/5 to-transparent border border-amber-500/30 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="space-y-1">
-          <div className="font-semibold text-xs text-[#0d0c0b] flex items-center gap-1.5 font-mono uppercase tracking-wider">
+          <div className="font-semibold text-xs text-white flex items-center gap-1.5 font-mono uppercase tracking-wider">
             <span>How the Team Memory Vault Works</span>
           </div>
-          <p className="text-xs text-[rgba(13,12,11,0.7)] max-w-2xl leading-relaxed">
+          <p className="text-xs text-white/70 max-w-2xl leading-relaxed">
             Whenever a bug or outage is resolved, the root cause and verified fix are stored here. When any engineer creates a new pull request, the system instantly recalls similar past events in under <strong>15ms</strong> to prevent repeat failures.
           </p>
         </div>
 
-        <div className="flex items-center gap-2 text-xs font-mono text-[rgba(13,12,11,0.6)] shrink-0">
-          <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+        <div className="flex items-center gap-2 text-xs font-mono text-white/60 shrink-0">
+          <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
           <span>Active &amp; Indexing</span>
         </div>
       </div>
@@ -99,7 +99,7 @@ export const HindsightExplorer: React.FC<HindsightExplorerProps> = ({
       {/* 1. Memory Banks Overview */}
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <span className="text-xs font-mono text-[rgba(13,12,11,0.5)] uppercase tracking-wider">
+          <span className="text-xs font-mono text-white/50 uppercase tracking-wider">
             Active Memory Banks ({banks.length})
           </span>
           <button
@@ -118,26 +118,26 @@ export const HindsightExplorer: React.FC<HindsightExplorerProps> = ({
               onClick={() => setSelectedBank(bank.id)}
               className={`p-5 rounded-2xl border transition-all cursor-pointer ${
                 selectedBank === bank.id
-                  ? 'bg-white border-[#0d0c0b] shadow-md ring-1 ring-[#0d0c0b]'
-                  : 'bg-white/80 border-[rgba(13,12,11,0.12)] hover:border-[rgba(13,12,11,0.25)]'
+                  ? 'bg-white/[0.08] border-white/40 shadow-lg ring-1 ring-white/30'
+                  : 'bg-white/[0.04] border-white/10 hover:border-white/25 hover:bg-white/[0.06]'
               }`}
             >
               <div className="flex items-center justify-between text-xs">
-                <span className="font-mono font-semibold text-[#0d0c0b]">{bank.id}</span>
-                <span className="text-[rgba(13,12,11,0.5)] font-mono text-[11px] tabular-nums">
+                <span className="font-mono font-semibold text-white">{bank.id}</span>
+                <span className="text-white/50 font-mono text-[11px] tabular-nums">
                   {bank.memoryCount} incidents stored
                 </span>
               </div>
 
-              <h3 className="text-base font-medium text-[#0d0c0b] mt-2">
+              <h3 className="text-base font-medium text-white mt-2">
                 {bank.name}
               </h3>
 
-              <p className="text-xs text-[rgba(13,12,11,0.65)] mt-1.5 line-clamp-2 leading-relaxed">
+              <p className="text-xs text-white/65 mt-1.5 line-clamp-2 leading-relaxed">
                 {bank.description}
               </p>
 
-              <div className="mt-4 pt-3 border-t border-[rgba(13,12,11,0.06)] flex items-center justify-between text-[11px] text-[rgba(13,12,11,0.45)] font-mono">
+              <div className="mt-4 pt-3 border-t border-white/10 flex items-center justify-between text-[11px] text-white/45 font-mono">
                 <span>Updated {new Date(bank.lastRetentionAt).toLocaleDateString()}</span>
               </div>
             </div>
@@ -146,21 +146,21 @@ export const HindsightExplorer: React.FC<HindsightExplorerProps> = ({
       </div>
 
       {/* 2. Interactive Semantic Recall Engine */}
-      <section className="studio-card p-6 md:p-8 space-y-5 bg-white border border-[rgba(13,12,11,0.12)]">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-[rgba(13,12,11,0.08)]">
+      <section className="studio-card p-6 md:p-8 space-y-5">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-white/10">
           <div>
-            <h3 className="text-base font-medium text-[#0d0c0b] tracking-tight flex items-center gap-2">
-              <Search className="h-4 w-4 text-[rgba(13,12,11,0.6)]" />
+            <h3 className="text-base font-medium text-white tracking-tight flex items-center gap-2">
+              <Search className="h-4 w-4 text-white/60" />
               <span>Search Memory in Plain English</span>
             </h3>
-            <p className="text-xs text-[rgba(13,12,11,0.6)] mt-0.5">
+            <p className="text-xs text-white/60 mt-0.5">
               Ask questions or search symptoms like you would ask a teammate (e.g. "why did checkouts fail" or "database locked").
             </p>
           </div>
 
           {latencyMs !== null && (
-            <span className="font-mono text-xs text-[#0d0c0b] bg-[rgba(13,12,11,0.05)] border border-[rgba(13,12,11,0.1)] px-3 py-1 rounded-full flex items-center gap-1.5 w-fit">
-              <Activity className="h-3 w-3 text-emerald-600" />
+            <span className="font-mono text-xs text-white bg-white/10 border border-white/15 px-3 py-1 rounded-full flex items-center gap-1.5 w-fit">
+              <Activity className="h-3 w-3 text-emerald-400" />
               <span>Recall Latency: {latencyMs}ms</span>
             </span>
           )}
@@ -168,13 +168,13 @@ export const HindsightExplorer: React.FC<HindsightExplorerProps> = ({
 
         <form onSubmit={handleRunRecall} className="flex flex-col sm:flex-row gap-3">
           <div className="relative flex-1">
-            <Search className="absolute left-3.5 top-2.5 h-4 w-4 text-[rgba(13,12,11,0.4)]" />
+            <Search className="absolute left-3.5 top-2.5 h-4 w-4 text-white/40" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="e.g. 'why did checkouts fail', 'database timeout', 'server memory spike'..."
-              className="w-full rounded-xl bg-[#fafaf8] border border-[rgba(13,12,11,0.14)] pl-10 pr-4 py-2.5 text-xs text-[#0d0c0b] focus:outline-none focus:border-[#0d0c0b]"
+              className="w-full rounded-xl bg-white/[0.05] border border-white/15 pl-10 pr-4 py-2.5 text-xs text-white placeholder-white/40 focus:outline-none focus:border-white/40"
             />
           </div>
 
@@ -188,8 +188,8 @@ export const HindsightExplorer: React.FC<HindsightExplorerProps> = ({
         </form>
 
         {/* Suggested Queries */}
-        <div className="flex flex-wrap items-center gap-2 text-xs text-[rgba(13,12,11,0.6)] pt-1">
-          <span className="text-[11px] text-[rgba(13,12,11,0.45)] font-mono">Try searching:</span>
+        <div className="flex flex-wrap items-center gap-2 text-xs text-white/60 pt-1">
+          <span className="text-[11px] text-white/45 font-mono">Try searching:</span>
           {[
             'why did checkouts crash after database update',
             'users getting randomly logged out',
@@ -201,7 +201,7 @@ export const HindsightExplorer: React.FC<HindsightExplorerProps> = ({
               key={idx}
               type="button"
               onClick={() => setSearchQuery(preset)}
-              className="text-[11px] px-2.5 py-1 rounded-full bg-[#f4f2ee] hover:bg-[#eae7e0] text-[#0d0c0b] transition-colors cursor-pointer"
+              className="text-[11px] px-2.5 py-1 rounded-full bg-white/10 hover:bg-white/20 text-white/90 transition-colors cursor-pointer"
             >
               {preset}
             </button>
@@ -210,8 +210,8 @@ export const HindsightExplorer: React.FC<HindsightExplorerProps> = ({
 
         {/* Recall Query Results */}
         {recallResults && (
-          <div className="mt-5 pt-5 border-t border-[rgba(13,12,11,0.08)] space-y-4">
-            <div className="text-xs font-semibold text-[#0d0c0b] uppercase tracking-wider font-mono">
+          <div className="mt-5 pt-5 border-t border-white/10 space-y-4">
+            <div className="text-xs font-semibold text-white uppercase tracking-wider font-mono">
               Recalled Matches ({recallResults.length})
             </div>
 
@@ -220,20 +220,20 @@ export const HindsightExplorer: React.FC<HindsightExplorerProps> = ({
                 <div
                   key={idx}
                   onClick={() => setSelectedMemory(item.memory)}
-                  className="p-4 rounded-xl bg-[#fafaf8] border border-[rgba(13,12,11,0.1)] hover:border-[#0d0c0b] transition-all cursor-pointer space-y-2 text-xs"
+                  className="p-4 rounded-xl bg-white/[0.04] border border-white/10 hover:border-white/30 transition-all cursor-pointer space-y-2 text-xs"
                 >
                   <div className="flex items-start justify-between gap-2">
-                    <span className="font-medium text-[#0d0c0b] truncate">{item.memory.title}</span>
-                    <span className="font-mono text-[11px] font-semibold px-2 py-0.5 rounded-full bg-[#0d0c0b] text-white shrink-0">
+                    <span className="font-medium text-white truncate">{item.memory.title}</span>
+                    <span className="font-mono text-[11px] font-semibold px-2 py-0.5 rounded-full bg-white text-[#0a0908] shrink-0">
                       {Math.round(item.score * 100)}% match
                     </span>
                   </div>
 
-                  <p className="text-[rgba(13,12,11,0.7)] text-xs line-clamp-2 leading-relaxed">
+                  <p className="text-white/70 text-xs line-clamp-2 leading-relaxed">
                     {item.memory.summary}
                   </p>
 
-                  <div className="space-y-0.5 pt-2 border-t border-[rgba(13,12,11,0.06)] text-[11px] text-[rgba(13,12,11,0.5)]">
+                  <div className="space-y-0.5 pt-2 border-t border-white/10 text-[11px] text-white/50">
                     {item.matchReasons?.slice(0, 2).map((reason: string, rIdx: number) => (
                       <div key={rIdx} className="truncate">&middot; {reason}</div>
                     ))}
@@ -248,13 +248,13 @@ export const HindsightExplorer: React.FC<HindsightExplorerProps> = ({
       {/* 3. Memory Graph & Inspector Split */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Left 2 Cols: Retained Memory Entries */}
-        <div className="lg:col-span-2 studio-card p-6 md:p-8 space-y-5 bg-white border border-[rgba(13,12,11,0.12)]">
-          <div className="flex items-center justify-between pb-4 border-b border-[rgba(13,12,11,0.08)]">
-            <h3 className="text-base font-medium text-[#0d0c0b] tracking-tight flex items-center gap-2">
-              <Network className="h-4 w-4 text-[rgba(13,12,11,0.5)]" />
+        <div className="lg:col-span-2 studio-card p-6 md:p-8 space-y-5">
+          <div className="flex items-center justify-between pb-4 border-b border-white/10">
+            <h3 className="text-base font-medium text-white tracking-tight flex items-center gap-2">
+              <Network className="h-4 w-4 text-white/50" />
               <span>Retained Memories ({memories.length})</span>
             </h3>
-            <span className="text-xs text-[rgba(13,12,11,0.5)] font-mono">
+            <span className="text-xs text-white/50 font-mono">
               Bank: {selectedBank}
             </span>
           </div>
@@ -266,36 +266,36 @@ export const HindsightExplorer: React.FC<HindsightExplorerProps> = ({
                 onClick={() => setSelectedMemory(mem)}
                 className={`p-4 rounded-xl border transition-all cursor-pointer ${
                   selectedMemory?.id === mem.id
-                    ? 'bg-[#fafaf8] border-[#0d0c0b] shadow-sm'
-                    : 'bg-white border-[rgba(13,12,11,0.08)] hover:border-[rgba(13,12,11,0.2)]'
+                    ? 'bg-white/[0.08] border-white/30 shadow-sm'
+                    : 'bg-white/[0.04] border-white/10 hover:border-white/20'
                 }`}
               >
                 <div className="flex items-start justify-between gap-3">
                   <div className="space-y-1">
-                    <div className="flex items-center gap-2 text-[11px] font-mono text-[rgba(13,12,11,0.5)]">
-                      <span className="font-semibold text-[#0d0c0b]">{mem.id}</span>
+                    <div className="flex items-center gap-2 text-[11px] font-mono text-white/50">
+                      <span className="font-semibold text-white">{mem.id}</span>
                       <span>&middot;</span>
                       <span>{mem.metadata?.service || 'platform'}</span>
                     </div>
-                    <h4 className="text-sm font-medium text-[#0d0c0b]">
+                    <h4 className="text-sm font-medium text-white">
                       {mem.title}
                     </h4>
                   </div>
 
-                  <span className="text-[11px] font-mono text-[rgba(13,12,11,0.45)] shrink-0">
+                  <span className="text-[11px] font-mono text-white/45 shrink-0">
                     {new Date(mem.timestamp).toLocaleDateString()}
                   </span>
                 </div>
 
-                <p className="text-xs text-[rgba(13,12,11,0.7)] mt-2 line-clamp-2 leading-relaxed">
+                <p className="text-xs text-white/70 mt-2 line-clamp-2 leading-relaxed">
                   {mem.summary}
                 </p>
 
-                <div className="flex flex-wrap gap-1.5 mt-3 pt-2.5 border-t border-[rgba(13,12,11,0.06)]">
+                <div className="flex flex-wrap gap-1.5 mt-3 pt-2.5 border-t border-white/10">
                   {mem.tags.map((tag, tIdx) => (
                     <span
                       key={tIdx}
-                      className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-[#f4f2ee] text-[rgba(13,12,11,0.7)]"
+                      className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-white/10 text-white/70"
                     >
                       #{tag}
                     </span>
@@ -307,12 +307,12 @@ export const HindsightExplorer: React.FC<HindsightExplorerProps> = ({
         </div>
 
         {/* Right Col: Memory Inspector */}
-        <div className="studio-card p-6 space-y-4 bg-white border border-[rgba(13,12,11,0.12)]">
-          <div className="pb-3 border-b border-[rgba(13,12,11,0.08)]">
-            <h4 className="text-sm font-medium text-[#0d0c0b] tracking-tight">
+        <div className="studio-card p-6 space-y-4">
+          <div className="pb-3 border-b border-white/10">
+            <h4 className="text-sm font-medium text-white tracking-tight">
               Memory Detail Inspector
             </h4>
-            <span className="text-xs text-[rgba(13,12,11,0.45)] font-mono">
+            <span className="text-xs text-white/45 font-mono">
               {selectedMemory ? selectedMemory.id : 'None selected'}
             </span>
           </div>
@@ -320,27 +320,27 @@ export const HindsightExplorer: React.FC<HindsightExplorerProps> = ({
           {selectedMemory ? (
             <div className="space-y-4 text-xs">
               <div>
-                <span className="text-[11px] font-mono text-[rgba(13,12,11,0.45)] block">Title</span>
-                <span className="text-sm font-medium text-[#0d0c0b] block mt-0.5">{selectedMemory.title}</span>
+                <span className="text-[11px] font-mono text-white/45 block">Title</span>
+                <span className="text-sm font-medium text-white block mt-0.5">{selectedMemory.title}</span>
               </div>
 
               <div>
-                <span className="text-[11px] font-mono text-[rgba(13,12,11,0.45)] block">Executive Summary</span>
-                <p className="text-[rgba(13,12,11,0.8)] mt-1 leading-relaxed">{selectedMemory.summary}</p>
+                <span className="text-[11px] font-mono text-white/45 block">Executive Summary</span>
+                <p className="text-white/80 mt-1 leading-relaxed">{selectedMemory.summary}</p>
               </div>
 
               <div>
-                <span className="text-[11px] font-mono text-[rgba(13,12,11,0.45)] block">Full Retained Lesson</span>
-                <p className="text-[rgba(13,12,11,0.75)] mt-1 leading-relaxed bg-[#fafaf8] p-3 rounded-lg border border-[rgba(13,12,11,0.08)]">
+                <span className="text-[11px] font-mono text-white/45 block">Full Retained Lesson</span>
+                <p className="text-white/75 mt-1 leading-relaxed bg-white/[0.04] p-3 rounded-lg border border-white/10">
                   {selectedMemory.content}
                 </p>
               </div>
 
               <div>
-                <span className="text-[11px] font-mono text-[rgba(13,12,11,0.45)] block mb-1">Semantic Tags</span>
+                <span className="text-[11px] font-mono text-white/45 block mb-1">Semantic Tags</span>
                 <div className="flex flex-wrap gap-1">
                   {selectedMemory.tags.map((t, idx) => (
-                    <span key={idx} className="font-mono text-[10px] px-2 py-0.5 rounded bg-[#f4f2ee] text-[#0d0c0b]">
+                    <span key={idx} className="font-mono text-[10px] px-2 py-0.5 rounded bg-white/10 text-white">
                       {t}
                     </span>
                   ))}
@@ -348,23 +348,23 @@ export const HindsightExplorer: React.FC<HindsightExplorerProps> = ({
               </div>
             </div>
           ) : (
-            <p className="text-xs text-[rgba(13,12,11,0.4)] italic">Select a memory from the left to inspect details</p>
+            <p className="text-xs text-white/40 italic">Select a memory from the left to inspect details</p>
           )}
         </div>
       </div>
 
       {/* Retain Post-Mortem Modal */}
       {showRetainModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
-          <div className="studio-card w-full max-w-lg p-6 md:p-8 bg-white border border-[rgba(13,12,11,0.15)] shadow-2xl space-y-5">
-            <div className="flex items-center justify-between pb-3 border-b border-[rgba(13,12,11,0.08)]">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md">
+          <div className="studio-card w-full max-w-lg p-6 md:p-8 bg-[#0a0f1d] border border-white/20 shadow-2xl space-y-5">
+            <div className="flex items-center justify-between pb-3 border-b border-white/10">
               <div>
-                <h3 className="text-lg font-medium text-[#0d0c0b]">Retain Post-Mortem Lesson</h3>
-                <p className="text-xs text-[rgba(13,12,11,0.5)]">Store an organizational safeguard into Hindsight</p>
+                <h3 className="text-lg font-medium text-white">Retain Post-Mortem Lesson</h3>
+                <p className="text-xs text-white/50">Store an organizational safeguard into Hindsight</p>
               </div>
               <button 
                 onClick={() => setShowRetainModal(false)}
-                className="text-[rgba(13,12,11,0.5)] hover:text-[#0d0c0b] p-1 cursor-pointer"
+                className="text-white/50 hover:text-white p-1 cursor-pointer"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -372,51 +372,51 @@ export const HindsightExplorer: React.FC<HindsightExplorerProps> = ({
 
             <form onSubmit={handleRetainSubmit} className="space-y-4 text-xs">
               <div>
-                <label className="block text-[rgba(13,12,11,0.7)] font-medium mb-1">Title</label>
+                <label className="block text-white/70 font-medium mb-1">Title</label>
                 <input
                   type="text"
                   required
                   placeholder="e.g. AWS RDS TLS 1.3 CA Bundle Incompatibility"
                   value={newTitle}
                   onChange={(e) => setNewTitle(e.target.value)}
-                  className="w-full rounded-lg bg-[#fafaf8] border border-[rgba(13,12,11,0.14)] px-3 py-2 text-[#0d0c0b] text-xs focus:outline-none focus:border-[#0d0c0b]"
+                  className="w-full rounded-lg bg-white/[0.05] border border-white/15 px-3 py-2 text-white text-xs focus:outline-none focus:border-white/40"
                 />
               </div>
 
               <div>
-                <label className="block text-[rgba(13,12,11,0.7)] font-medium mb-1">Service &amp; Subsystem</label>
+                <label className="block text-white/70 font-medium mb-1">Service &amp; Subsystem</label>
                 <input
                   type="text"
                   value={newService}
                   onChange={(e) => setNewService(e.target.value)}
-                  className="w-full rounded-lg bg-[#fafaf8] border border-[rgba(13,12,11,0.14)] px-3 py-2 text-[#0d0c0b] text-xs focus:outline-none focus:border-[#0d0c0b]"
+                  className="w-full rounded-lg bg-white/[0.05] border border-white/15 px-3 py-2 text-white text-xs focus:outline-none focus:border-white/40"
                 />
               </div>
 
               <div>
-                <label className="block text-[rgba(13,12,11,0.7)] font-medium mb-1">Incident Content &amp; Verified Remedy</label>
+                <label className="block text-white/70 font-medium mb-1">Incident Content &amp; Verified Remedy</label>
                 <textarea
                   rows={4}
                   required
                   placeholder="Describe what broke, the root cause, and how to verify it in pre-flight checks..."
                   value={newContent}
                   onChange={(e) => setNewContent(e.target.value)}
-                  className="w-full rounded-lg bg-[#fafaf8] border border-[rgba(13,12,11,0.14)] p-3 text-[#0d0c0b] text-xs focus:outline-none focus:border-[#0d0c0b]"
+                  className="w-full rounded-lg bg-white/[0.05] border border-white/15 p-3 text-white text-xs focus:outline-none focus:border-white/40"
                 />
               </div>
 
               <div>
-                <label className="block text-[rgba(13,12,11,0.7)] font-medium mb-1">Tags (comma-separated)</label>
+                <label className="block text-white/70 font-medium mb-1">Tags (comma-separated)</label>
                 <input
                   type="text"
                   placeholder="postgres, ssl, rds, cert-bundle, pg8"
                   value={newTags}
                   onChange={(e) => setNewTags(e.target.value)}
-                  className="w-full rounded-lg bg-[#fafaf8] border border-[rgba(13,12,11,0.14)] px-3 py-2 text-[#0d0c0b] text-xs focus:outline-none focus:border-[#0d0c0b]"
+                  className="w-full rounded-lg bg-white/[0.05] border border-white/15 px-3 py-2 text-white text-xs focus:outline-none focus:border-white/40"
                 />
               </div>
 
-              <div className="flex items-center justify-end gap-3 pt-3 border-t border-[rgba(13,12,11,0.08)]">
+              <div className="flex items-center justify-end gap-3 pt-3 border-t border-white/10">
                 <button
                   type="button"
                   onClick={() => setShowRetainModal(false)}
